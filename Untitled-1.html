@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KEA College Predictor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-xl">
+    <h1 class="text-2xl font-bold mb-6 text-center">KEA College Predictor</h1>
+
+    <!-- Inputs -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label class="block font-medium">Category</label>
+        <select id="category" class="w-full mt-1 p-2 border rounded">
+          <option value="2A">2A</option>
+          <option value="GM">GM</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block font-medium">Your Rank</label>
+        <input type="number" id="rank" class="w-full mt-1 p-2 border rounded" placeholder="Enter your rank">
+      </div>
+
+      <div>
+        <label class="block font-medium">Course</label>
+        <select id="course" class="w-full mt-1 p-2 border rounded">
+          <option value="CS">CS</option>
+          <option value="AI">AI</option>
+          <option value="EC">EC</option>
+          <option value="EE">EE</option>
+          <option value="ME">ME</option>
+          <option value="CE">CE</option>
+          <option value="IE">IE</option>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="predict()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Predict Colleges</button>
+
+    <!-- Results -->
+    <div id="results" class="mt-6"></div>
+  </div>
+
+  <script>
+    const data = [
+      { code: "E001", college: "UVCE Bangalore", course: "CS", gm: 6057, a2: 10328 },
+      { code: "E001", college: "UVCE Bangalore", course: "IE", gm: 8225, a2: 11546 },
+      { code: "E001", college: "UVCE Bangalore", course: "AI", gm: 8910, a2: 15493 },
+      { code: "E001", college: "UVCE Bangalore", course: "EC", gm: 12040, a2: 14565 },
+      { code: "E001", college: "UVCE Bangalore", course: "EE", gm: 28777, a2: 40201 },
+      { code: "E002", college: "SKJIT", course: "CS", gm: 28777, a2: 40201 },
+      { code: "E022", college: "East West Institute of Technology", course: "CS", gm: 13850, a2: 18940 },
+      { code: "E022", college: "East West Institute of Technology", course: "AI", gm: 17140, a2: 22300 },
+      { code: "E022", college: "East West Institute of Technology", course: "EC", gm: 20510, a2: 25860 },
+      { code: "E022", college: "East West Institute of Technology", course: "EE", gm: 24860, a2: 29540 },
+      { code: "E022", college: "East West Institute of Technology", course: "ME", gm: 27830, a2: 32450 },
+      { code: "E023", college: "Reva University Bangalore", course: "CS", gm: 11840, a2: 16730 },
+      { code: "E023", college: "Reva University Bangalore", course: "AI", gm: 14300, a2: 19500 },
+      { code: "E023", college: "Reva University Bangalore", course: "EC", gm: 18540, a2: 23460 },
+      { code: "E023", college: "Reva University Bangalore", course: "EE", gm: 22130, a2: 26740 },
+      { code: "E023", college: "Reva University Bangalore", course: "ME", gm: 25540, a2: 30100 },
+      { code: "E024", college: "Presidency University Bangalore", course: "CS", gm: 13900, a2: 18890 },
+      { code: "E024", college: "Presidency University Bangalore", course: "AI", gm: 16530, a2: 21240 },
+      { code: "E024", college: "Presidency University Bangalore", course: "EC", gm: 19720, a2: 24410 },
+      { code: "E024", college: "Presidency University Bangalore", course: "EE", gm: 23640, a2: 28100 },
+      { code: "E024", college: "Presidency University Bangalore", course: "ME", gm: 26890, a2: 31050 },
+      { code: "E025", college: "Don Bosco Institute of Technology", course: "CS", gm: 12400, a2: 17280 },
+      { code: "E025", college: "Don Bosco Institute of Technology", course: "AI", gm: 15640, a2: 20520 },
+      { code: "E025", college: "Don Bosco Institute of Technology", course: "EC", gm: 19410, a2: 24100 },
+      { code: "E025", college: "Don Bosco Institute of Technology", course: "EE", gm: 22950, a2: 27430 },
+      { code: "E025", college: "Don Bosco Institute of Technology", course: "ME", gm: 25940, a2: 30300 },
+      { code: "E026", college: "AMC Engineering College", course: "CS", gm: 14730, a2: 19800 },
+      { code: "E026", college: "AMC Engineering College", course: "AI", gm: 17450, a2: 22430 },
+      { code: "E026", college: "AMC Engineering College", course: "EC", gm: 20640, a2: 25400 },
+      { code: "E026", college: "AMC Engineering College", course: "EE", gm: 23960, a2: 28510 },
+      { code: "E026", college: "AMC Engineering College", course: "ME", gm: 27040, a2: 31480 },
+      { code: "E027", college: "Atria Institute of Technology", course: "CS", gm: 13140, a2: 18010 },
+      { code: "E027", college: "Atria Institute of Technology", course: "AI", gm: 15810, a2: 20690 },
+      { code: "E027", college: "Atria Institute of Technology", course: "EC", gm: 19540, a2: 24260 },
+      { code: "E027", college: "Atria Institute of Technology", course: "EE", gm: 23060, a2: 27550 },
+      { code: "E027", college: "Atria Institute of Technology", course: "ME", gm: 26370, a2: 30720 },
+      { code: "E028", college: "Acharya Institute of Technology", course: "CS", gm: 10230, a2: 15240 },
+      { code: "E028", college: "Acharya Institute of Technology", course: "AI", gm: 13150, a2: 18840 },
+      { code: "E028", college: "Acharya Institute of Technology", course: "EC", gm: 16970, a2: 22410 },
+      { code: "E028", college: "Acharya Institute of Technology", course: "EE", gm: 20230, a2: 25640 },
+      { code: "E028", college: "Acharya Institute of Technology", course: "ME", gm: 23820, a2: 29100 },
+      { code: "E029", college: "Brindavan College of Engineering", course: "CS", gm: 15980, a2: 20740 },
+      { code: "E029", college: "Brindavan College of Engineering", course: "AI", gm: 18350, a2: 23180 },
+      { code: "E029", college: "Brindavan College of Engineering", course: "EC", gm: 21760, a2: 26300 },
+      { code: "E029", college: "Brindavan College of Engineering", course: "EE", gm: 24890, a2: 29250 },
+      { code: "E029", college: "Brindavan College of Engineering", course: "ME", gm: 27560, a2: 31800 },
+      { code: "E016", college: "Dayananda Sagar College of Engineering", course: "CS", gm: 5190, a2: 8410 },
+      { code: "E016", college: "Dayananda Sagar College of Engineering", course: "AI", gm: 8145, a2: 12950 },
+      { code: "E016", college: "Dayananda Sagar College of Engineering", course: "EC", gm: 11502, a2: 17100 },
+      { code: "E016", college: "Dayananda Sagar College of Engineering", course: "EE", gm: 16242, a2: 22350 },
+      { code: "E016", college: "Dayananda Sagar College of Engineering", course: "ME", gm: 20105, a2: 26542 },
+      { code: "E017", college: "BNMIT Bangalore", course: "CS", gm: 6784, a2: 10290 },
+      { code: "E017", college: "BNMIT Bangalore", course: "AI", gm: 10832, a2: 15880 },
+      { code: "E017", college: "BNMIT Bangalore", course: "EC", gm: 13942, a2: 18900 },
+      { code: "E017", college: "BNMIT Bangalore", course: "EE", gm: 18400, a2: 23210 },
+      { code: "E017", college: "BNMIT Bangalore", course: "ME", gm: 22900, a2: 27800 },
+      { code: "E018", college: "NMIT Bangalore", course: "CS", gm: 8234, a2: 12320 },
+      { code: "E018", college: "NMIT Bangalore", course: "AI", gm: 11212, a2: 16100 },
+      { code: "E018", college: "NMIT Bangalore", course: "EC", gm: 14212, a2: 18930 },
+      { code: "E018", college: "NMIT Bangalore", course: "EE", gm: 18100, a2: 22850 },
+      { code: "E018", college: "NMIT Bangalore", course: "ME", gm: 21500, a2: 26480 },
+      { code: "E019", college: "MVJ College of Engineering", course: "CS", gm: 9320, a2: 13400 },
+      { code: "E019", college: "MVJ College of Engineering", course: "AI", gm: 12500, a2: 17350 },
+      { code: "E019", college: "MVJ College of Engineering", course: "EC", gm: 16100, a2: 20840 },
+      { code: "E019", college: "MVJ College of Engineering", course: "EE", gm: 19800, a2: 24310 },
+      { code: "E019", college: "MVJ College of Engineering", course: "ME", gm: 24500, a2: 28900 },
+      { code: "E020", college: "Vemana Institute of Technology", course: "CS", gm: 11420, a2: 15100 },
+      { code: "E020", college: "Vemana Institute of Technology", course: "AI", gm: 14310, a2: 18980 },
+      { code: "E020", college: "Vemana Institute of Technology", course: "EC", gm: 17900, a2: 22210 },
+      { code: "E020", college: "Vemana Institute of Technology", course: "EE", gm: 21150, a2: 25230 },
+      { code: "E020", college: "Vemana Institute of Technology", course: "ME", gm: 25800, a2: 29980 },
+      { code: "E021", college: "Global Academy of Technology", course: "CS", gm: 12680, a2: 16890 },
+      { code: "E021", college: "Global Academy of Technology", course: "AI", gm: 15460, a2: 19970 },
+      { code: "E021", college: "Global Academy of Technology", course: "EC", gm: 18820, a2: 23180 },
+      { code: "E021", college: "Global Academy of Technology", course: "EE", gm: 22400, a2: 26420 },
+      { code: "E021", college: "Global Academy of Technology", course: "ME", gm: 26980, a2: 30900 },
+      { code: "E012", college: "BIT Bangalore", course: "CS", gm: 6542, a2: 10241 },
+      { code: "E012", college: "BIT Bangalore", course: "AI", gm: 9984, a2: 14231 },
+      { code: "E012", college: "BIT Bangalore", course: "EC", gm: 12482, a2: 17312 },
+      { code: "E012", college: "BIT Bangalore", course: "EE", gm: 16931, a2: 22756 },
+      { code: "E012", college: "BIT Bangalore", course: "ME", gm: 21105, a2: 27852 },
+      { code: "E012", college: "BIT Bangalore", course: "CE", gm: 23820, a2: 30985 },
+      { code: "E013", college: "NMAMIT Nitte", course: "CS", gm: 7812, a2: 12123 },
+      { code: "E013", college: "NMAMIT Nitte", course: "AI", gm: 10120, a2: 15300 },
+      { code: "E013", college: "NMAMIT Nitte", course: "EC", gm: 14231, a2: 19670 },
+      { code: "E013", college: "NMAMIT Nitte", course: "EE", gm: 18954, a2: 24300 },
+      { code: "E013", college: "NMAMIT Nitte", course: "ME", gm: 22125, a2: 27800 },
+      { code: "E014", college: "RNSIT Bangalore", course: "CS", gm: 4392, a2: 8210 },
+      { code: "E014", college: "RNSIT Bangalore", course: "AI", gm: 6732, a2: 12340 },
+      { code: "E014", college: "RNSIT Bangalore", course: "EC", gm: 9740, a2: 15600 },
+      { code: "E014", college: "RNSIT Bangalore", course: "EE", gm: 13050, a2: 20840 },
+      { code: "E014", college: "RNSIT Bangalore", course: "ME", gm: 17630, a2: 24210 },
+      { code: "E015", college: "JSSATE Bangalore", course: "CS", gm: 9050, a2: 14352 },
+      { code: "E015", college: "JSSATE Bangalore", course: "AI", gm: 11520, a2: 18370 },
+      { code: "E015", college: "JSSATE Bangalore", course: "EC", gm: 16200, a2: 23145 },
+      { code: "E015", college: "JSSATE Bangalore", course: "EE", gm: 20985, a2: 28300 },
+      { code: "E015", college: "JSSATE Bangalore", course: "ME", gm: 25600, a2: 31500 },
+      { code: "E015", college: "JSSATE Bangalore", course: "CE", gm: 27400, a2: 33100 },
+      { code: "E009", college: "NIE Mysore", course: "CS", gm: 4572, a2: 8040 },
+      { code: "E009", college: "NIE Mysore", course: "AI", gm: 7415, a2: 12870 },
+      { code: "E009", college: "NIE Mysore", course: "EC", gm: 9211, a2: 15491 },
+      { code: "E009", college: "NIE Mysore", course: "EE", gm: 13245, a2: 20834 },
+      { code: "E009", college: "NIE Mysore", course: "ME", gm: 17890, a2: 25109 },
+      { code: "E010", college: "Siddaganga Institute of Technology", course: "CS", gm: 5062, a2: 10120 },
+      { code: "E010", college: "Siddaganga Institute of Technology", course: "AI", gm: 8632, a2: 14101 },
+      { code: "E010", college: "Siddaganga Institute of Technology", course: "EC", gm: 10785, a2: 17435 },
+      { code: "E010", college: "Siddaganga Institute of Technology", course: "EE", gm: 16424, a2: 23530 },
+      { code: "E010", college: "Siddaganga Institute of Technology", course: "ME", gm: 20510, a2: 29175 },
+      { code: "E010", college: "Siddaganga Institute of Technology", course: "CE", gm: 24820, a2: 31700 },
+      { code: "E011", college: "SJCE Mysore", course: "CS", gm: 3920, a2: 7210 },
+      { code: "E006", college: "PES University RR Campus", course: "CS", gm: 600, a2: 1300 },
+      { code: "E006", college: "PES University RR Campus", course: "AI", gm: 1500, a2: 2600 },
+      { code: "E006", college: "PES University RR Campus", course: "EC", gm: 3200, a2: 4600 },
+      { code: "E006", college: "PES University RR Campus", course: "EE", gm: 6600, a2: 9300 },
+      { code: "E006", college: "PES University RR Campus", course: "ME", gm: 10400, a2: 15800 },
+      { code: "E007", college: "MSRIT Bangalore", course: "CS", gm: 832, a2: 1970 },
+      { code: "E007", college: "MSRIT Bangalore", course: "AI", gm: 1702, a2: 3561 },
+      { code: "E007", college: "MSRIT Bangalore", course: "EC", gm: 2970, a2: 6090 },
+      { code: "E007", college: "MSRIT Bangalore", course: "EE", gm: 5735, a2: 10191 },
+      { code: "E007", college: "MSRIT Bangalore", course: "ME", gm: 8600, a2: 16078 },
+      { code: "E008", college: "BMS Institute of Technology", course: "CS", gm: 2859, a2: 4952 },
+      { code: "E008", college: "BMS Institute of Technology", course: "AI", gm: 4522, a2: 8622 },
+      { code: "E008", college: "BMS Institute of Technology", course: "EC", gm: 5816, a2: 9996 },
+      { code: "E008", college: "BMS Institute of Technology", course: "EE", gm: 9414, a2: 15788 },
+      { code: "E008", college: "BMS Institute of Technology", course: "ME", gm: 11736, a2: 20023 },
+      { code: "E004", college: "Dr. AIT Bangalore", course: "CS", gm: 10487, a2: 15870 },
+      { code: "E004", college: "Dr. AIT Bangalore", course: "AI", gm: 13489, a2: 20156 },
+      { code: "E004", college: "Dr. AIT Bangalore", course: "EC", gm: 19420, a2: 24123 },
+      { code: "E004", college: "Dr. AIT Bangalore", course: "EE", gm: 29430, a2: 34219 },
+      { code: "E005", college: "RVCE Bangalore", course: "CS", gm: 315, a2: 1208 },
+      { code: "E005", college: "RVCE Bangalore", course: "AI", gm: 771, a2: 2430 },
+      { code: "E005", college: "RVCE Bangalore", course: "EC", gm: 2062, a2: 5034 },
+      { code: "E005", college: "RVCE Bangalore", course: "EE", gm: 5098, a2: 11200 },
+      { code: "E005", college: "RVCE Bangalore", course: "ME", gm: 8554, a2: 17882 },
+      { code: "E005", college: "RVCE Bangalore", course: "CE", gm: 12325, a2: 20335 },
+      { code: "E001", college: "UVCE Bangalore", course: "CS", gm: 6057, a2: 10328 },
+      { code: "E001", college: "UVCE Bangalore", course: "IE", gm: 8225, a2: 11546 },
+      { code: "E001", college: "UVCE Bangalore", course: "AI", gm: 8910, a2: 15493 },
+      { code: "E001", college: "UVCE Bangalore", course: "EC", gm: 12040, a2: 14565 },
+      { code: "E001", college: "UVCE Bangalore", course: "EE", gm: 28777, a2: 40201 },
+      { code: "E002", college: "SKSJTI Bangalore", course: "CS", gm: 9640, a2: 13684 },
+      { code: "E002", college: "SKSJTI Bangalore", course: "EC", gm: 14731, a2: 19418 },
+      { code: "E002", college: "SKSJTI Bangalore", course: "EE", gm: 21497, a2: 28043 },
+      { code: "E003", college: "BMSCE Basavanagudi", course: "CS", gm: 1784, a2: 3755 },
+      { code: "E003", college: "BMSCE Basavanagudi", course: "AI", gm: 3126, a2: 6656 },
+            { code: "E030", college: "Rajiv Gandhi Institute of Technology", course: "CS", gm: 14870, a2: 19740 },
+      { code: "E030", college: "Rajiv Gandhi Institute of Technology", course: "AI", gm: 17210, a2: 21930 },
+      { code: "E030", college: "Rajiv Gandhi Institute of Technology", course: "EC", gm: 21060, a2: 25500 },
+      { code: "E030", college: "Rajiv Gandhi Institute of Technology", course: "EE", gm: 24600, a2: 28980 },
+      { code: "E030", college: "Rajiv Gandhi Institute of Technology", course: "ME", gm: 27840, a2: 32040 },
+      { code: "E031", college: "Sapthagiri College of Engineering", course: "CS", gm: 12890, a2: 17740 },
+      { code: "E031", college: "Sapthagiri College of Engineering", course: "AI", gm: 15820, a2: 20780 },
+      { code: "E031", college: "Sapthagiri College of Engineering", course: "EC", gm: 19710, a2: 24380 },
+      { code: "E031", college: "Sapthagiri College of Engineering", course: "EE", gm: 23360, a2: 27890 },
+      { code: "E031", college: "Sapthagiri College of Engineering", course: "ME", gm: 26690, a2: 31030 },
+      { code: "E032", college: "SJB Institute of Technology", course: "CS", gm: 13050, a2: 18020 },
+      { code: "E032", college: "SJB Institute of Technology", course: "AI", gm: 15790, a2: 20800 },
+      { code: "E032", college: "SJB Institute of Technology", course: "EC", gm: 19670, a2: 24500 },
+      { code: "E032", college: "SJB Institute of Technology", course: "EE", gm: 23200, a2: 27740 },
+      { code: "E032", college: "SJB Institute of Technology", course: "ME", gm: 26410, a2: 30850 },
+      { code: "E033", college: "Jyothy Institute of Technology", course: "CS", gm: 15380, a2: 20320 },
+      { code: "E033", college: "Jyothy Institute of Technology", course: "AI", gm: 18290, a2: 23260 },
+      { code: "E033", college: "Jyothy Institute of Technology", course: "EC", gm: 21910, a2: 26690 },
+      { code: "E033", college: "Jyothy Institute of Technology", course: "EE", gm: 25340, a2: 29980 },
+      { code: "E033", college: "Jyothy Institute of Technology", course: "ME", gm: 28490, a2: 33040 }
+    ];
+      // Add more entries from your data here
+    function predict() {
+      const category = document.getElementById("category").value;
+      const rank = parseInt(document.getElementById("rank").value);
+      const course = document.getElementById("course").value;
+
+      if (isNaN(rank)) {
+        alert("Please enter a valid rank.");
+        return;
+      }
+
+      const results = data.filter(entry => {
+        const cutoff = category === "GM" ? entry.gm : entry.a2;
+        return entry.course === course && rank <= cutoff;
+      });
+
+      const resultDiv = document.getElementById("results");
+      if (results.length === 0) {
+        resultDiv.innerHTML = '<p class="text-red-500 font-semibold">No colleges found for your inputs.</p>';
+        return;
+      }
+
+      let html = `<table class="w-full mt-4 table-auto border">
+        <thead><tr class="bg-gray-200">
+          <th class="border p-2">Code</th>
+          <th class="border p-2">College</th>
+          <th class="border p-2">Course</th>
+          <th class="border p-2">Cutoff (${category})</th>
+        </tr></thead>
+        <tbody>`;
+
+      results.forEach(row => {
+        html += `<tr>
+          <td class="border p-2">${row.code}</td>
+          <td class="border p-2">${row.college}</td>
+          <td class="border p-2">${row.course}</td>
+          <td class="border p-2">${category === "GM" ? row.gm : row.a2}</td>
+        </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      resultDiv.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
